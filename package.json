@@ -5,7 +5,9 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon  src/index.js"
+    "dev": "node  src/index.js",
+    "build" : "npm install",
+    "start": "node src/index.js"
   },
   "author": "Ankit Raj",
   "license": "ISC",
