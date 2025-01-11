@@ -8,7 +8,10 @@ import mongoose from "mongoose";
 // Helper function to convert date to UTC
 const toUTC = (date) => {
   if (!date) return null;
-  return new Date(date).toISOString();
+  // Parse the date assuming it's in IST and convert to UTC
+  const istDate = new Date(date);
+  const utcDate = new Date(istDate.getTime() - 5.5 * 60 * 60 * 1000); // Subtract 5 hours 30 minutes
+  return utcDate.toISOString();
 };
 
 // CREATE: Add a new test
