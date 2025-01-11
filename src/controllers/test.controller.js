@@ -5,25 +5,32 @@ import { Test } from "../models/test.model.js";
 import { Question } from "../models/question.model.js";
 import mongoose from "mongoose";
 
+// Helper function to convert date to UTC
+const toUTC = (date) => {
+  if (!date) return null;
+  return new Date(date).toISOString();
+};
+
 // CREATE: Add a new test
 const addTest = asyncHandler(async (req, res, next) => {
-  const { title, pattern, totalMarks, duration, testQuestions, testDateAndTime , validity } = req.body;
+  const { title, pattern, totalMarks, duration, testQuestions, testDateAndTime, validity } = req.body;
 
   if (!title || !pattern || !totalMarks || !duration || !testDateAndTime) {
     throw new ApiError(400, "All fields are required.");
   }
-  console.log(req.body)
+
+  const testData = {
+    title,
+    pattern,
+    totalMarks,
+    duration,
+    testQuestions,
+    testDateAndTime: toUTC(testDateAndTime), // Convert to UTC
+    validity,
+  };
+
   try {
-    const test = await Test.create({
-      title,
-      pattern,
-      totalMarks,
-      duration,
-      testQuestions,
-      testDateAndTime,
-      validity
-    });
-    console.log(test)
+    const test = await Test.create(testData);
     res.status(200).json(new ApiResponse(200, test, "Test created successfully."));
   } catch (error) {
     throw new ApiError(500, "Error occurred while creating the test.");
@@ -41,8 +48,6 @@ const getTests = asyncHandler(async (req, res, next) => {
       if (!test) {
         throw new ApiError(404, "Test not found.");
       }
-
-      
       res.status(200).json(new ApiResponse(200, test, "Test fetched successfully."));
     } catch (error) {
       throw new ApiError(500, "Error occurred while fetching the test.");
@@ -123,7 +128,7 @@ const updateTest = asyncHandler(async (req, res, next) => {
   if (totalMarks) updateData.totalMarks = totalMarks;
   if (duration) updateData.duration = duration;
   if (testQuestions) updateData.testQuestions = testQuestions;
-  if (testDateAndTime) updateData.testDateAndTime = testDateAndTime;
+  if (testDateAndTime) updateData.testDateAndTime = toUTC(testDateAndTime); // Convert to UTC
 
   if (Object.keys(updateData).length === 0) {
     throw new ApiError(400, "No valid fields provided for update.");
